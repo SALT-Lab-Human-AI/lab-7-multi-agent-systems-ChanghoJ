@@ -98,10 +98,10 @@ Configuration Summary:
 
 class AgentConfig:
     """Configuration for individual agents"""
-
+    # Exercise 2: Modify Agent Roles
     RESEARCH_AGENT = {
         "name": "ResearchAgent",
-        "role": "Market Researcher",
+        "role": "Business Analyst",
         "temperature": 0.7,
     }
 
@@ -120,6 +120,13 @@ class AgentConfig:
     REVIEWER_AGENT = {
         "name": "ReviewerAgent",
         "role": "Product Reviewer",
+        "temperature": 0.7,
+    }
+
+    # Exercise 3: Add a MockerAgent for testing purposes
+    MOCKER_AGENT = {
+        "name": "MockerAgent",
+        "role": "Critique Specialist",
         "temperature": 0.7,
     }
 
