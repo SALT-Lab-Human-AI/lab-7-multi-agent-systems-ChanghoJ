@@ -137,22 +137,44 @@ def search_travel_costs(destination: str) -> str:
     Focus on actual costs travelers can expect.
     """
 
+@tool
+def search_product_reviews(product_name: str) -> str:
+    """
+    Search for real product reviews and critiques.
+    Provides current information about product performance and user feedback.
+    """
+    search_query = f"{product_name} reviews 2025"
+
+    return f"""
+    Research task: Find reviews for {product_name}.
+
+    Please research and provide:
+    1. Current user reviews from major platforms (Amazon, Best Buy, etc.)
+    2. Expert reviews from reputable sources
+    3. Common pros and cons mentioned by users
+    4. Overall ratings and satisfaction levels
+    5. Any recent updates or changes to the product
+
+    Focus on realistic, current feedback from actual users.
+    Provide a balanced critique based on real reviews.
+    """
+
 
 # ============================================================================
 # AGENT DEFINITIONS
 # ============================================================================
-
+# Exercise 2: Modify Agent Roles
 def create_flight_agent(destination: str, trip_dates: str):
     """Create the Flight Specialist agent with real research tools."""
     return Agent(
-        role="Flight Specialist",
+        role="Hotel Manager",
         goal=f"Research and recommend the best flight options for the {destination} trip "
              f"({trip_dates}), considering dates, airlines, prices, and flight durations. "
              f"Use real data from flight booking sites to provide accurate, current pricing.",
-        backstory="You are an experienced flight specialist with deep knowledge of "
-                  "airline schedules, pricing patterns, and travel routes. You excel at "
-                  "finding the best flight options that balance cost and convenience. "
-                  "You have booked thousands of flights and know the best times to fly. "
+        backstory="You are an experienced hotel manager with deep knowledge of "
+                  "hotel booking schedules, pricing patterns, and travel routes. You excel at "
+                  "finding the best travel options that balance cost and convenience. "
+                  "You have booked thousands of hotels and know the best times to book. "
                   "You always research current prices and use real booking site data.",
         tools=[search_flight_prices],
         verbose=True,
@@ -217,6 +239,19 @@ def create_budget_agent(destination: str):
                   "compromising the travel experience. You research actual current prices "
                   "and provide realistic budget estimates.",
         tools=[search_travel_costs],
+        verbose=True,
+        allow_delegation=False
+    )
+
+def create_critique_agent():
+    """Create a Critique Specialist agent for testing purposes."""
+    return Agent(
+        role="Critique Specialist",
+        goal=f"Provide a detailed critique based on real product reviews.",
+        backstory="You are a critique specialist with expertise in analyzing product reviews. "
+                  "You can identify common themes, pros and cons, and overall sentiment from user feedback. "
+                  "You research actual current reviews to provide an honest and balanced critique.",
+        tools=[search_product_reviews],
         verbose=True,
         allow_delegation=False
     )
@@ -301,6 +336,15 @@ def create_budget_task(budget_agent, destination: str, trip_duration: str):
                        f"accommodation, meals, activities with actual entry fees, transportation, "
                        f"and total realistic estimates at different budget levels, plus "
                        f"evidence-based cost-saving recommendations for a {trip_duration} trip to {destination}"
+    )
+
+# Exercise 3: Add a New Task
+def create_critique_task(critique_agent, product_name: str):
+    """Define a mock critique task for testing purposes."""
+    return Task(
+        description=f"Based on the REAL reviews on products, provide a critique.",
+        agent=critique_agent,
+        expected_output=f"A detailed critique based on real product reviews."
     )
 
 
@@ -392,8 +436,8 @@ def main(destination: str = "Iceland", trip_duration: str = "5 days",
     print()
 
     crew = Crew(
-        agents=[flight_agent, hotel_agent, itinerary_agent, budget_agent],
-        tasks=[flight_task, hotel_task, itinerary_task, budget_task],
+        agents=[flight_agent, hotel_agent, itinerary_agent, budget_agent, create_critique_agent()],
+        tasks=[flight_task, hotel_task, itinerary_task, budget_task, create_critique_task(create_critique_agent(), destination)],
         verbose=True,
         process="sequential"  # Sequential task execution
     )
